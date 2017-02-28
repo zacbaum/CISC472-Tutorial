@@ -88,12 +88,12 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
     # Refresh Apply button state
     self.onSelect()
 
-  # Does nothing for this module. Can be used to clear out selectors once run if you wanted to.
+  # We don't need this for this module
   def cleanup(self):
     pass
 
-  # When the node selectors both contain valid nodes (they can be the same node),
-  # the apply button becomes clickable!
+  # When the node selectors both contain valid nodes (they can be the same node - we want the
+  # center of just one point), the apply button becomes clickable!
   def onSelect(self):
     self.applyButton.enabled = self.inputSelector.currentNode() and self.input2Selector.currentNode()
 
@@ -123,6 +123,8 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     # Then if the value of the given voxel is > zero we add the 
     # value of the voxel coordinate to the running sums, and the
     # count of voxels is incremented.
+    # We go by 2's to increase the speed - it won't have much (if
+    # any) effect on the result.
     for z in xrange(volume.GetExtent()[4], volume.GetExtent()[5] + 1, 2):
       for y in xrange(volume.GetExtent()[2], volume.GetExtent()[3] + 1, 2):
         for x in xrange(volume.GetExtent()[0], volume.GetExtent()[1] + 1, 2):
