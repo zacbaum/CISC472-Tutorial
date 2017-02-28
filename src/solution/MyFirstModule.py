@@ -45,7 +45,7 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
     self.inputSelector.noneEnabled = False
     self.inputSelector.showHidden = False
     self.inputSelector.showChildNodeTypes = False
-    self.inputSelector.setMRMLScene( slicer.mrmlScene )
+    self.inputSelector.setMRMLScene(slicer.mrmlScene)
 
     # Tooltips and the label for the combobox.
     self.inputSelector.setToolTip( "Pick the first input to the algorithm." )
@@ -128,7 +128,7 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     for z in xrange(volume.GetExtent()[4], volume.GetExtent()[5] + 1, 2):
       for y in xrange(volume.GetExtent()[2], volume.GetExtent()[3] + 1, 2):
         for x in xrange(volume.GetExtent()[0], volume.GetExtent()[1] + 1, 2):
-          voxelValue = volume.GetScalarComponentAsDouble(x,y,z,0)
+          voxelValue = volume.GetScalarComponentAsDouble(x, y, z, 0)
           if voxelValue > 0:
             numberOfStructureVoxels = numberOfStructureVoxels + 1
             sumX = sumX + x
@@ -146,7 +146,7 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     # Return the point that contains the center of mass location.
     return centerOfMass 
 
-  def run(self,inputVolume,input2Volume):
+  def run(self, inputVolume, input2Volume):
 
     # Get the transformation matrix from the Image Volume coordinate system
     # into RAS coordinates.
@@ -170,8 +170,8 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     # Get the average of the two Centers of Mass to give the center of the
     # two objects.
     self.translation = []
-    for i in [0,1,2]:
-      self.translation.append((center2[i] + center1[i])/2)
+    for i in [0, 1, 2]:
+      self.translation.append((center2[i] + center1[i]) / 2)
 
     # Set the scale, color, location and label of the COM fiducial node.
     slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeGlyphScale(5.0)
@@ -179,7 +179,7 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeColor(0.0, 0.0, 0.0)
     slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeSelectedColor(0.0, 0.0, 0.0)
     slicer.modules.markups.logic().AddNewFiducialNode()
-    slicer.modules.markups.logic().AddFiducial(self.translation[0],self.translation[1],self.translation[2])
+    slicer.modules.markups.logic().AddFiducial(self.translation[0], self.translation[1], self.translation[2])
     fidList = slicer.util.getNode('F')
     numFids = fidList.GetNumberOfFiducials()
     fidStr = "COM: " + inputVolume.GetName() + ", " + input2Volume.GetName()
