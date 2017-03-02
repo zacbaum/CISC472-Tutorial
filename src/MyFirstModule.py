@@ -55,7 +55,7 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
     # STEP 1
     # Create an additional input volume selector named 'input2Selector', and give it the 
     # same parameters and attributes as the first input selector.
-	######################################################################################
+    ######################################################################################
 
     # Apply Button
     # Defines the button and sets it to be unclickable (for now...)
@@ -119,10 +119,10 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     numberOfStructureVoxels = 0
     sumX = sumY = sumZ = 0
 
-	######################################################################################
-	# STEP 5
-	# Get the image data from the volume node so that we can find the center of mass.
-	######################################################################################
+    ######################################################################################
+    # STEP 5
+    # Get the image data from the volume node so that we can find the center of mass.
+    ######################################################################################
 
     # Uses the extent of the image to get the range for the loops,
     # Then if the value of the given voxel is > zero we add the 
@@ -178,7 +178,7 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     ######################################################################################
     print('Center of mass for \'' + inputVolume.GetName() + '\': ' + repr(center1))
 
-	######################################################################################
+    ######################################################################################
     # STEP 9
     # Same as above, with the second input volume and center2.
     ######################################################################################
