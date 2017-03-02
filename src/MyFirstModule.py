@@ -106,8 +106,7 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
     # Set the output label text to display the string representation of each value in the
     # comVector vector.
     ######################################################################################
-    self.outputLabel.setText('(' + repr(logic.comVector[0]) + ', ' + repr(logic.comVector[1]) + ', ' + repr(logic.comVector[2]) + ')') 
-
+    
 # The logic for the Module.
 class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
 
