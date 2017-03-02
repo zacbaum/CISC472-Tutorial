@@ -51,18 +51,11 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
     self.inputSelector.setToolTip( "Pick the first input to the algorithm." )
     parametersFormLayout.addRow("Input Volume 1: ", self.inputSelector)
 
-    # Input Volume 2 Selector. 
-    self.input2Selector = slicer.qMRMLNodeComboBox()
-    self.input2Selector.nodeTypes = ( ("vtkMRMLLabelMapVolumeNode"), "" )
-    self.input2Selector.selectNodeUponCreation = False
-    self.input2Selector.addEnabled = False
-    self.input2Selector.removeEnabled = False
-    self.input2Selector.noneEnabled = False
-    self.input2Selector.showHidden = False
-    self.input2Selector.showChildNodeTypes = False
-    self.input2Selector.setMRMLScene( slicer.mrmlScene )
-    self.input2Selector.setToolTip( "Pick the second input to the algorithm." )
-    parametersFormLayout.addRow("Input Volume 2: ", self.input2Selector)
+    ######################################################################################
+    # STEP 1
+    # Create an additional input volume selector named 'input2Selector', and give it the 
+    # same parameters and attributes as the first input selector.
+	######################################################################################
 
     # Apply Button
     # Defines the button and sets it to be unclickable (for now...)
@@ -71,16 +64,21 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
     self.applyButton.enabled = False
     parametersFormLayout.addRow(self.applyButton)
 
-    # Text Field
-    # Provides the output space for the Center of Mass of the two objects.
-    self.outputLabel = qt.QLabel()
-    parametersFormLayout.addRow(self.outputLabel) 
+    # QLabel Text Field
+    ######################################################################################
+    # STEP 2
+    # Create a QLabel called 'outputLabel' and add it to the module's layout. This will
+    # display the Center of Mass to the GUI after running the main logic of the module.
+    ######################################################################################
+    
 
-    # When the apply button is clicked, it says it's clicked,
-    # When the selectors have a node selected, they are marked as filled.
+    # Connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
-    self.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
-    self.input2Selector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
+    ######################################################################################
+    # STEP 3
+    # Create the connections for the input selectors to the the onSelect function to make
+    # sure that the apply button is only selectable when both are picked.
+    ######################################################################################
 
     # Add vertical spacer
     self.layout.addStretch(1)
@@ -103,7 +101,12 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
   def onApplyButton(self):
     logic = MyFirstModuleLogic()
     logic.run(self.inputSelector.currentNode(), self.input2Selector.currentNode())
-    self.outputLabel.setText('(' + repr(logic.translation[0]) + ', ' + repr(logic.translation[1]) + ', ' + repr(logic.translation[2]) + ')') 
+    ######################################################################################
+    # STEP 12
+    # Set the output label text to display the string representation of each value in the
+    # comVector vector.
+    ######################################################################################
+    self.outputLabel.setText('(' + repr(logic.comVector[0]) + ', ' + repr(logic.comVector[1]) + ', ' + repr(logic.comVector[2]) + ')') 
 
 # The logic for the Module.
 class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
@@ -116,32 +119,43 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     numberOfStructureVoxels = 0
     sumX = sumY = sumZ = 0
 
-    # Gets the image data for the current node.
-    volume = volumeNode.GetImageData()
+	######################################################################################
+	# STEP 5
+	# Get the image data from the volume node so that we can find the center of mass.
+	######################################################################################
 
     # Uses the extent of the image to get the range for the loops,
     # Then if the value of the given voxel is > zero we add the 
     # value of the voxel coordinate to the running sums, and the
     # count of voxels is incremented.
-    # We go by 2's to increase the speed - it won't have much (if
-    # any) effect on the result.
-    for z in xrange(volume.GetExtent()[4], volume.GetExtent()[5] + 1, 2):
-      for y in xrange(volume.GetExtent()[2], volume.GetExtent()[3] + 1, 2):
-        for x in xrange(volume.GetExtent()[0], volume.GetExtent()[1] + 1, 2):
+
+    ######################################################################################
+    # STEP 6
+    # Loop through the Z, Y and then X direction by using the extent of the image volumes.
+    # The extent of the X direction will be in indices 0 and 1 of the extent, Y direction
+    # will be 2 and 3, Z will be 4 and 5. To make things a bit faster, have your loops go 
+    # up by 2 each iteration.
+    ######################################################################################
+    '''
+    for z ...
+      for y ...
+        for x ...
           voxelValue = volume.GetScalarComponentAsDouble(x, y, z, 0)
           if voxelValue > 0:
             numberOfStructureVoxels = numberOfStructureVoxels + 1
             sumX = sumX + x
             sumY = sumY + y
             sumZ = sumZ + z
-
+	'''
     # When the loop terminates, if we had any voxels, we calculate
     # the Center of Mass by dividing the sums by the number of voxels
     # in total.
     if numberOfStructureVoxels > 0:
-      centerOfMass[0] = sumX / numberOfStructureVoxels
-      centerOfMass[1] = sumY / numberOfStructureVoxels
-      centerOfMass[2] = sumZ / numberOfStructureVoxels
+      ######################################################################################
+      # STEP 7
+      # Compute the center of mass for each of the X Y Z directions and do this by dividing
+      # the summed values by the number of voxels that were used.
+      ######################################################################################
 
     # Return the point that contains the center of mass location.
     return centerOfMass 
@@ -151,40 +165,51 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     # Get the transformation matrix from the Image Volume coordinate system
     # into RAS coordinates.
     ijk2ras4x4 = vtk.vtkMatrix4x4()
-    inputVolume.GetIJKToRASMatrix(ijk2ras4x4)
+    ######################################################################################
+    # STEP 4
+    # Get the IJKToRAS Matrix for the first input volume.
+    ######################################################################################
 
-    # Get the center of mass of the first volume, then turn it into a 4D
-    # point, so the matrix multiplication works. Then do the multiplication,
-    # and output the center of mass to the console.
-    center1 = self.getCenterOfMass(inputVolume)
-    center1.append(1)
-    center1 = ijk2ras4x4.MultiplyPoint(center1)
+    ######################################################################################
+    # STEP 8
+    # Get the center of mass of the first input volume and store that in a variable called
+    # 'center1'. Append a 1 to the end so we may multiply by a 4x4 matrix, and then mult.
+    # the center1 point by the IJKToRAS Matrix.
+    ######################################################################################
     print('Center of mass for \'' + inputVolume.GetName() + '\': ' + repr(center1))
 
-    # Same as above, with the second input volume.
-    center2 = self.getCenterOfMass(input2Volume)
-    center2.append(1)
-    center2 = ijk2ras4x4.MultiplyPoint(center2)
+	######################################################################################
+    # STEP 9
+    # Same as above, with the second input volume and center2.
+    ######################################################################################
     print('Center of mass for \'' + input2Volume.GetName() + '\': ' + repr(center2))
 
     # Get the average of the two Centers of Mass to give the center of the
     # two objects.
-    self.translation = []
+    self.comVector = []
     for i in [0, 1, 2]:
-      self.translation.append((center2[i] + center1[i]) / 2)
+      self.comVector.append((center2[i] + center1[i]) / 2)
 
-    # Set the scale, color, location and label of the COM fiducial node.
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeGlyphScale(5.0)
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeTextScale(5.0)
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeColor(0.0, 0.0, 0.0)
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeSelectedColor(0.0, 0.0, 0.0)
-    slicer.modules.markups.logic().AddNewFiducialNode()
-    slicer.modules.markups.logic().AddFiducial(self.translation[0], self.translation[1], self.translation[2])
+    # Sets the scale, color, location and label of the COM fiducial node.
+    markupsLogic = slicer.modules.markups.logic()
+    markupsLogic.SetDefaultMarkupsDisplayNodeGlyphScale(5.0)
+    markupsLogic.SetDefaultMarkupsDisplayNodeTextScale(5.0)
+    markupsLogic.SetDefaultMarkupsDisplayNodeColor(0.0, 0.0, 0.0)
+    markupsLogic.SetDefaultMarkupsDisplayNodeSelectedColor(0.0, 0.0, 0.0)
+    markupsLogic.AddNewFiducialNode()
+    ######################################################################################
+    # STEP 10
+    # Add the fiducial that has the values of the comVector.
+    ######################################################################################
     fidList = slicer.util.getNode('F')
     numFids = fidList.GetNumberOfFiducials()
-    fidStr = "COM: " + inputVolume.GetName() + ", " + input2Volume.GetName()
+    ######################################################################################
+    # STEP 11
+    # Create the 'fidStr' which will display the names of the input volumes as the name
+    # of the fiducial.
+    ######################################################################################
     for n in range(numFids):
       fidList.SetNthFiducialLabel(n, fidStr)
 
-    # Return true to indicate success!
+    # Return true to indicate success.
     return True
