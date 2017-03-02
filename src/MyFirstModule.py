@@ -151,6 +151,7 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     # the Center of Mass by dividing the sums by the number of voxels
     # in total.
     if numberOfStructureVoxels > 0:
+      pass
       ######################################################################################
       # STEP 7
       # Compute the center of mass for each of the X Y Z directions and do this by dividing
