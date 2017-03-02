@@ -103,7 +103,7 @@ class MyFirstModuleWidget(ScriptedLoadableModuleWidget):
   def onApplyButton(self):
     logic = MyFirstModuleLogic()
     logic.run(self.inputSelector.currentNode(), self.input2Selector.currentNode())
-    self.outputLabel.setText('(' + repr(logic.translation[0]) + ', ' + repr(logic.translation[1]) + ', ' + repr(logic.translation[2]) + ')') 
+    self.outputLabel.setText('(' + repr(logic.comVector[0]) + ', ' + repr(logic.comVector[1]) + ', ' + repr(logic.comVector[2]) + ')') 
 
 # The logic for the Module.
 class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
@@ -169,18 +169,18 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
 
     # Get the average of the two Centers of Mass to give the center of the
     # two objects.
-    self.translation = []
+    self.comVector = []
     for i in [0, 1, 2]:
-      self.translation.append((center2[i] + center1[i]) / 2)
+      self.comVector.append((center2[i] + center1[i]) / 2)
 
     # Set the scale, color, location and label of the COM fiducial node.
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeGlyphScale(5.0)
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeTextScale(5.0)
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeColor(0.0, 0.0, 0.0)
-    slicer.modules.markups.logic().SetDefaultMarkupsDisplayNodeSelectedColor(0.0, 0.0, 0.0)
-    slicer.modules.markups.logic().AddNewFiducialNode()
-    slicer.modules.markups.logic().AddFiducial(self.translation[0], self.translation[1], self.translation[2])
-    fidList = slicer.util.getNode('F')
+    markupsLogic = slicer.modules.markups.logic()
+    markupsLogic.SetDefaultMarkupsDisplayNodeGlyphScale(5.0)
+    markupsLogic.SetDefaultMarkupsDisplayNodeTextScale(5.0)
+    markupsLogic.SetDefaultMarkupsDisplayNodeColor(0.0, 0.0, 0.0)
+    markupsLogic.SetDefaultMarkupsDisplayNodeSelectedColor(0.0, 0.0, 0.0)
+    markupsLogic.AddNewFiducialNode()
+    markupsLogic.AddFiducial(self.comVector[0], self.comVector[1], self.comVector[2])
     numFids = fidList.GetNumberOfFiducials()
     fidStr = "COM: " + inputVolume.GetName() + ", " + input2Volume.GetName()
     for n in range(numFids):
