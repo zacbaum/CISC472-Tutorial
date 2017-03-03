@@ -181,6 +181,7 @@ class MyFirstModuleLogic(ScriptedLoadableModuleLogic):
     markupsLogic.SetDefaultMarkupsDisplayNodeSelectedColor(0.0, 0.0, 0.0)
     markupsLogic.AddNewFiducialNode()
     markupsLogic.AddFiducial(self.comVector[0], self.comVector[1], self.comVector[2])
+    fidList = slicer.util.getNode('F')
     numFids = fidList.GetNumberOfFiducials()
     fidStr = "COM: " + inputVolume.GetName() + ", " + input2Volume.GetName()
     for n in range(numFids):
